@@ -14,7 +14,7 @@
 
 #include "symcrypt.h"
 
-static char saltsFile[] = ".securesyncSalts";
+static char saltsFile[] = ".redsideSalts";
 static char *saltsPath = 0;
 
 /*
@@ -37,14 +37,14 @@ static char password[kMaxPasswordLen] = {0,}; // aways secret
 
 /*
  * This (both the struct and the hash+salt) is
- * stored in ~/.securesyncSalts in this order.
+ * stored in ~/.redsideSalts in this order.
  */
 static struct {
   uint8_t keySaltLen;
   uint8_t hmacSaltLen;
   uint8_t keySalt[kCryptoSaltMax];
   uint8_t hmacSalt[kCryptoSaltMax];
-} securesyncSalts = {0,};
+} redsideSalts = {0,};
 uint8_t passwordHash[CC_SHA256_BLOCK_BYTES+kPwdSaltLen] = {0,};
 
 
@@ -72,7 +72,7 @@ testCalcIter(void)
   int iter;
   iter = CCCalibratePBKDF(kCCPBKDF2,
                           strlen(password),
-                          securesyncSalts.keySaltLen,
+                          redsideSalts.keySaltLen,
                           kCCPRFHmacAlgSHA512,
                           kCCKeySizeAES256,
                           100);               // ms
@@ -180,7 +180,7 @@ getPassword(void)
 
     fd = open(getSaltsPath(), O_RDWR|O_CREAT, 0600);
     if (fd >= 0) {
-      rv = lseek(fd, sizeof(securesyncSalts), SEEK_SET);
+      rv = lseek(fd, sizeof(redsideSalts), SEEK_SET);
       rv = write(fd, passwordHash, CC_SHA256_BLOCK_BYTES+kPwdSaltLen);
       rv = close(fd);
     } else {
@@ -195,25 +195,25 @@ symCryptInit(void)
   int fd;
   size_t rv;
 
-  if (isZero(&securesyncSalts, sizeof(securesyncSalts))) {
+  if (isZero(&redsideSalts, sizeof(redsideSalts))) {
 
     fd = open(getSaltsPath(), O_RDONLY, 0600);
     if (fd >= 0) {
-      rv = read(fd, &securesyncSalts, sizeof(securesyncSalts));
+      rv = read(fd, &redsideSalts, sizeof(redsideSalts));
       rv = read(fd, passwordHash, CC_SHA256_BLOCK_BYTES+kPwdSaltLen);
       rv = close(fd);
     }
 
-    if (isZero(&securesyncSalts, sizeof(securesyncSalts))) {
+    if (isZero(&redsideSalts, sizeof(redsideSalts))) {
 
-      securesyncSalts.keySaltLen = kCryptoSaltLen;
-      getSalt(securesyncSalts.keySalt, kCryptoSaltMax);
-      securesyncSalts.hmacSaltLen = kCryptoSaltLen;
-      getSalt(securesyncSalts.hmacSalt, kCryptoSaltMax);
+      redsideSalts.keySaltLen = kCryptoSaltLen;
+      getSalt(redsideSalts.keySalt, kCryptoSaltMax);
+      redsideSalts.hmacSaltLen = kCryptoSaltLen;
+      getSalt(redsideSalts.hmacSalt, kCryptoSaltMax);
 
       fd = open(getSaltsPath(), O_RDWR|O_CREAT, 0600);
       if (fd >= 0) {
-        rv = write(fd, &securesyncSalts, sizeof(securesyncSalts));
+        rv = write(fd, &redsideSalts, sizeof(redsideSalts));
         rv = close(fd);
       } else {
         printf("cannot save key salts\n");
@@ -247,8 +247,8 @@ encryptInit(int (*writerFunc)(void *, size_t),
 
   if (isZero(encKey, kCCKeySizeAES256) || isZero(hmacKey, kCCKeySizeAES256)) {
 
-    header.keySaltLen = securesyncSalts.keySaltLen;
-    memcpy(header.keySalt, securesyncSalts.keySalt, header.keySaltLen);
+    header.keySaltLen = redsideSalts.keySaltLen;
+    memcpy(header.keySalt, redsideSalts.keySalt, header.keySaltLen);
 
     /* AES KEY DERIVATION */
     rv = CCKeyDerivationPBKDF(kCCPBKDF2,
@@ -262,8 +262,8 @@ encryptInit(int (*writerFunc)(void *, size_t),
       exit(1);
     }
 
-    header.hmacSaltLen = securesyncSalts.hmacSaltLen;
-    memcpy(header.hmacSalt, securesyncSalts.hmacSalt, header.hmacSaltLen);
+    header.hmacSaltLen = redsideSalts.hmacSaltLen;
+    memcpy(header.hmacSalt, redsideSalts.hmacSalt, header.hmacSaltLen);
 
     /* HMAC KEY DERIVATION */
     rv = CCKeyDerivationPBKDF(kCCPBKDF2,
@@ -419,10 +419,10 @@ decryptInit(int (*writerFunc)(void *, size_t), void *h)
   memcpy(&header, h, sizeof(header));
 
   if (isZero(encKey, kCCKeySizeAES256) ||
-      memcmp(header.keySalt, securesyncSalts.keySalt, header.keySaltLen)) {
+      memcmp(header.keySalt, redsideSalts.keySalt, header.keySaltLen)) {
 
-    securesyncSalts.keySaltLen = header.keySaltLen;
-    memcpy(securesyncSalts.keySalt, header.keySalt, sizeof(header.keySalt));
+    redsideSalts.keySaltLen = header.keySaltLen;
+    memcpy(redsideSalts.keySalt, header.keySalt, sizeof(header.keySalt));
 
     /* AES KEY DERIVATION */
     rv = CCKeyDerivationPBKDF(kCCPBKDF2,
@@ -438,10 +438,10 @@ decryptInit(int (*writerFunc)(void *, size_t), void *h)
   }
 
   if (isZero(hmacKey, kCCKeySizeAES256) ||
-      memcmp(header.hmacSalt, securesyncSalts.hmacSalt, sizeof(header.hmacSalt))) {
+      memcmp(header.hmacSalt, redsideSalts.hmacSalt, sizeof(header.hmacSalt))) {
 
-    securesyncSalts.hmacSaltLen = header.hmacSaltLen;
-    memcpy(securesyncSalts.hmacSalt, header.hmacSalt, header.hmacSaltLen);
+    redsideSalts.hmacSaltLen = header.hmacSaltLen;
+    memcpy(redsideSalts.hmacSalt, header.hmacSalt, header.hmacSaltLen);
 
     /* HMAC KEY DERIVATION */
     rv = CCKeyDerivationPBKDF(kCCPBKDF2,

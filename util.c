@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "securesync.h"
+#include "redside.h"
 
 static char *home = NULL;
 static size_t homeLen;

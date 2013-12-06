@@ -14,7 +14,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-#include "securesync.h"
+#include "redside.h"
 
 
 enum {

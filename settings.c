@@ -10,11 +10,11 @@
 #include <unistd.h>
 #include <CommonCrypto/CommonCrypto.h>
 
-#include "securesync.h"
+#include "redside.h"
 #include "symcrypt.h"
 
 
-static char settingsFile[] = ".securesync";
+static char settingsFile[] = ".redside";
 
 enum {
   MAX_DOC     = 21,

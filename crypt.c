@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include "securesync.h"
+#include "redside.h"
 #include "symcrypt.h"
 
 static FILE *fpIn;

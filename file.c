@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "securesync.h"
+#include "redside.h"
 
 
 static StrAlloc

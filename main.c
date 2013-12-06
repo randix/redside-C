@@ -1,5 +1,5 @@
 /* 
- * securesync
+ * redside
  */
 // Copyright (c) 2013, Dowhaus Systems, LLC
 // All rights reserved.
@@ -14,7 +14,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "securesync.h"
+#include "redside.h"
 #include "symcrypt.h"
 
 
@@ -48,7 +48,7 @@ static void
 usage(void)
 {
   printf("\n"
-         "securesync []\n"
+         "redside []\n"
          "\n"
          "   <default>                     update backups\n"
          "   -d [-f <file> | -p <path>]    decrypt file or folder\n"   // XXX
