@@ -187,7 +187,7 @@ main(int ac, char *av[])
   DB *dbp;
   long id;
   Role role;
-  int noUpdates = 0;
+  int updates = 0;
 
   parseOpts(ac, av);
 
@@ -222,14 +222,14 @@ main(int ac, char *av[])
       /* needs encryption */
       if (dbp->plain_mtime > dbp->mtime) {
         dbp->flags |= kFlgActCrypt;
-        noUpdates ++;
+        updates++;
         continue;
       }
 
       /* needs decryption */
       if (dbp->plain_mtime < dbp->mtime) {
         dbp->flags |= kFlgActDecrypt;
-        noUpdates++;
+        updates++;
         continue;
       }
     }
@@ -242,7 +242,7 @@ main(int ac, char *av[])
         dbp->flags |= kFlgActDecrypt;
       else
         dbp->flags |= ask(dbp, kPlainMissing);
-      noUpdates++;
+      updates++;
       continue;
     }
 
@@ -255,7 +255,7 @@ main(int ac, char *av[])
         dbp->flags |= kFlgActRemovePlain;
       else
         dbp->flags |= ask(dbp, kCryptMissing);
-      noUpdates++;
+      updates++;
       continue;
     }
   }
@@ -263,7 +263,7 @@ main(int ac, char *av[])
   if (tflag & 8)
     dumpDB("ac");
 
-  if (noUpdates) {
+  if (updates) {
 
     printf("\n");
     iterateDBInit();
@@ -281,7 +281,7 @@ main(int ac, char *av[])
     }
     printf("\n");
 
-    printf("run %d actions...\n", noUpdates);
+    printf("run %d actions...\n", updates);
 
     symCryptInit();
     getPassword();

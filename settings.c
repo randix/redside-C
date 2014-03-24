@@ -17,9 +17,9 @@
 static char settingsFile[] = ".redside";
 
 enum {
-  MAX_DOC     = 21,
-  MAX_IGNORE  = 33,
-  MAX_BACKUP  = 6,
+  MAX_DOC     = 30,
+  MAX_IGNORE  = 40,
+  MAX_BACKUP  = 10,
 };
 
 static char *doc[MAX_DOC] = { NULL, };
@@ -41,8 +41,7 @@ settingsInit(void)
   char *settings;
   FILE *fp;
   char buf[1024];
-  char *p;
-  char *q;
+  char *p, *q, *r;
   Backup *bakp;
 
   home = getenv("HOME");
@@ -57,12 +56,32 @@ settingsInit(void)
 
   while (fgets(buf, sizeof(buf), fp) != NULL) {
 
-    p = strtok(buf, " \t\r\n");
-    if (!p || *p == '#' || *p == 0)
+    p = buf;
+    // skip to first token
+    while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') p++;
+    if (!*p || *p == '#')
       continue;
-    q = strtok(NULL, " \t\r\n");
-    if (!q || !*q)
+
+    q = p;
+    // terminate first token and skip to second token
+    while (*q && *q != ' ' && *q != '\t' && *q != '\r' && *q != '\n') q++;
+    while (*q == ' ' || *q == '\t' || *q == '\r' || *q == '\n') *q++ = 0;
+    if (!*q)
       continue;
+
+    // terminate second token and skip to third token
+    if (*q == '"') {
+      q++;
+      r = q;
+      while (*r && *r != '"' && *r != '\r' && *r != '\n') r++;
+      if (*r != '"')
+         continue;
+      *r++ = 0;
+    } else {
+      r = q;
+      while (*r && *r != ' ' && *r != '\t' && *r != '\r' && *r != '\n') r++;
+    }
+    while (*r == ' ' || *r == '\t' || *r == '\r' || *r == '\n') *r++ = 0;
 
     if (!strcmp(p, "DOC_TREE")) {
       if (docNxt >= MAX_DOC-1) {
@@ -85,24 +104,84 @@ settingsInit(void)
         printf("settings: too many BACKUPs\n");
         continue;
       }
-      bakp = &backup[backupNxt++];
+      bakp = &backup[backupNxt];
 
       bakp->service = malloc(strlen(q) + 1);
       strcpy(bakp->service, q);
 
-      p = strtok(NULL, " \t\r\n");
+      p = r;
+      // terminate this token and skip to next token
+      q = p;
+      if (*q == '"') {
+        q++;
+        r = q;
+        while (*r && *r != '"' && *r != '\r' && *r != '\n') r++;
+        if (*r != '"')
+          continue;
+        *r++ = 0;
+      } else {
+        r = q;
+        while (*r && *r != ' ' && *r != '\t' && *r != '\r' && *r != '\n') r++;
+      }
+      while (*r == ' ' || *r == '\t' || *r == '\r' || *r == '\n') *r++ = 0;
+
       bakp->path = malloc(strlen(p) + 1);
       strcpy(bakp->path, p);
 
-      p = strtok(NULL, " \t\r\n");
+      p = r;
+      // terminate this token and skip to next token
+      q = p;
+      if (*q == '"') {
+        q++;
+        r = q;
+        while (*r && *r != '"' && *r != '\r' && *r != '\n') r++;
+        if (*r != '"')
+          continue;
+        *r++ = 0;
+      } else {
+        r = q;
+        while (*r && *r != ' ' && *r != '\t' && *r != '\r' && *r != '\n') r++;
+      }
+      while (*r == ' ' || *r == '\t' || *r == '\r' || *r == '\n') *r++ = 0;
+
       bakp->user = malloc(strlen(p) + 1);
       strcpy(bakp->user, p);
 
-      p = strtok(NULL, " \t\r\n");
+      p = r;
+      // terminate this token and skip to next token
+      q = p;
+      if (*q == '"') {
+        q++;
+        r = q;
+        while (*r && *r != '"' && *r != '\r' && *r != '\n') r++;
+        if (*r != '"')
+          continue;
+        *r++ = 0;
+      } else {
+        r = q;
+        while (*r && *r != ' ' && *r != '\t' && *r != '\r' && *r != '\n') r++;
+      }
+      while (*r == ' ' || *r == '\t' || *r == '\r' || *r == '\n') *r++ = 0;
+
       bakp->password = malloc(strlen(p) + 1);
       strcpy(bakp->password, p);
 
-      p = strtok(NULL, " \t\r\n");
+      p = r;
+      // terminate this token and skip to next token
+      q = p;
+      if (*q == '"') {
+        q++;
+        r = q;
+        while (*r && *r != '"' && *r != '\r' && *r != '\n') r++;
+        if (*r != '"')
+          continue;
+        *r++ = 0;
+      } else {
+        r = q;
+        while (*r && *r != ' ' && *r != '\t' && *r != '\r' && *r != '\n') r++;
+      }
+      while (*r == ' ' || *r == '\t' || *r == '\r' || *r == '\n') *r++ = 0;
+
       bakp->protocol = malloc(strlen(p) + 1);
       strcpy(bakp->protocol, p);
 
@@ -120,11 +199,14 @@ settingsInit(void)
         bakp->protType = kProtS3;
       else if (!strcmp(bakp->protocol, "ftp"))
         bakp->protType = kProtFTP;
-      else
+      else {
         printf("unknown protocol: %s\n", p);
+        continue;
+      }
+
+      backupNxt++;
 
     } else if (!strcmp(p, "ROLE")) {
-      p = strtok(NULL, " \t\r\n");
 
       if (!strcmp(q, "master")) {
         role = kRoleMaster;
@@ -143,7 +225,7 @@ settingsInit(void)
 }
 
 Backup *
-settingsIsync(void)
+settingsRedSide(void)
 {
   return(backup);
 }
@@ -190,9 +272,9 @@ main(int ac, char **av)
   for (i=0; list[i]; i++)
     printf("IGNORE %s\n", list[i]);
 
-  bak = settingsIsync();
+  bak = settingsRedSide();
   for (i=0; bak[i].service; i++)
-    printf("BACKUP %s %s %s%s %s %d\n",
+    printf("BACKUP %s %s %s %s %s %d\n",
                    bak[i].service,  bak[i].path,     bak[i].user,
                    bak[i].password, bak[i].protocol, bak[i].protType);
 

@@ -256,7 +256,7 @@ dbRead(void)
   char *n;
 
   // XXX
-  bak = settingsIsync();
+  bak = settingsRedSide();
   data = bak[0].path;
 
   n = mkName2(data, "u");
@@ -304,7 +304,7 @@ dbWrite(void)
     return;
 
   printf("write db\n");
-  bak = settingsIsync();
+  bak = settingsRedSide();
   data = bak[0].path;
 
   n = mkName2(data, "u");

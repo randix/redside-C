@@ -141,7 +141,7 @@ dataTree(void)
   char *data;
 
 // XXX  lots of work here
-  bak = settingsIsync();
+  bak = settingsRedSide();
   data = bak[0].path;
 
   bakPathLen = strlen(data) + 1;

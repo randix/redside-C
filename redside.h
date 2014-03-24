@@ -33,7 +33,7 @@ typedef enum {
 
 
 void settingsInit(void);
-Backup *settingsIsync(void);
+Backup *settingsRedSide(void);
 char **settingsDocs(void);
 char **settingsIgnore(void);
 Role settingsRole(void);

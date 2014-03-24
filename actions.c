@@ -61,7 +61,7 @@ actEncrypt(DB *dbp)
 
 
 // XXX
-  bak = settingsIsync();
+  bak = settingsRedSide();
   data = bak[0].path;
 
   name = num2Name(getNum(dbp));
@@ -95,7 +95,7 @@ actDecrypt(DB *dbp)
 
 
 // XXX
-  bak = settingsIsync();
+  bak = settingsRedSide();
   data = bak[0].path;
 
   name = num2Name(getNum(dbp));
@@ -135,7 +135,7 @@ actRemoveCrypt(DB *dbp)
   int err;
 
   // XXX
-  bak = settingsIsync();
+  bak = settingsRedSide();
   data = bak[0].path;
 
   name = num2Name(getNum(dbp));
@@ -167,7 +167,7 @@ actRemovePlain(DB *dbp)
   printf("remove local: %s\n", dbp->name);
 
 // XXX
-  bak = settingsIsync();
+  bak = settingsRedSide();
   data = bak[0].path;
 
   sname = mkName(dbp->name);
