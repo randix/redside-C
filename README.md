@@ -1,10 +1,9 @@
 redside
-==========
+=======
 
-secure cloud folder synchronization using cryptography
+Secure cloud folder synchronization using cryptography.
 
 
-
-Copyright (c) 2013, Dowhaus Systems, LLC
+Copyright (c) 2013-2018, Randix, LLC
 All rights reserved.
 

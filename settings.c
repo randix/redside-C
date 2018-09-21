@@ -17,6 +17,8 @@
 static char settingsFile[] = ".redside";
 
 enum {
+  INIT_LEN    = 10,
+  ADD_LEN     = 10,
   MAX_DOC     = 30,
   MAX_IGNORE  = 40,
   MAX_BACKUP  = 10,
