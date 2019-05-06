@@ -1,0 +1,43 @@
+Sorting
+  FoldersFirst   : bool
+  IgnoreDotFiles : bool
+  Increasing     : bool
+  Order          : enum Name, Date, Size
+  
+Paths
+  MainFolder          : string
+  BrowserFolder       : string
+  CurrentFile         : string
+  CurrentFileLocation : int
+
+Connection[]
+  Name : string
+  Host : string
+  Path : string
+  HostType : enum
+    HostTypeEnum : FTP, SFTP, SMB, WebDAV, Dropbox, Box, Amazon S3, Apple iCloud, Microsoft OneDrive, Google Drive, Toshiba Wireless SSD
+  User : string
+  // password stored in keychain
+    SFTP-Port: int
+    SFTP-HostHash : string
+    SFTP-UsePublicKey : bool
+    SFTP-PrivateKeyFile : string
+    WEBDAV-URL : string
+
+SyncConnection[]
+  ConnectionName : string
+  HostPath : string
+  DBId : string
+  DBTimestamp : date
+  LastSync : date
+  Encrypted : bool
+  DeleteLocal : bool
+  DeleteRemote : bool
+  ConflictResolve : ConflictResolutionEnum
+    ConflictResolveEnum : enum Ask, LocalPriority, RemotePriority
+
+Synchronization[]
+  LocalPath : string
+  SyncConnectionName : string[]
+  IgnoreList : string[]
+   

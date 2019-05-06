@@ -1,0 +1,10 @@
+actions.o
+crypt.o
+db.o
+file.o
+main.o
+redside
+settings
+settings.o
+symcrypt.o
+util.o
